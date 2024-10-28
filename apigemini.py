@@ -19,6 +19,11 @@ def enviar_mensagem_gemini(mensagem):
 def dividir_em_blocos(texto, largura=1600):
     return textwrap.wrap(texto, width=largura)
 
+# Teste de servidor
+@app.route('/')
+def home():
+    return "Servidor Flask está funcionando!"
+
 # Endpoint para receber mensagens via Twilio
 @app.route('/mensagem', methods=['POST'])
 def mensagem():
