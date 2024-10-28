@@ -3,51 +3,51 @@ from flask import Flask, request
 from twilio.twiml.messaging_response import MessagingResponse
 import google.generativeai as genai
 import textwrap
+import threading
 
 app = Flask(__name__)
 
-# Pegando a chave da API Gemini da variável de ambiente
+# Configuração da API Gemini
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
-# Função para enviar a mensagem via API Gemini
 def enviar_mensagem_gemini(mensagem):
-    model = genai.GenerativeModel("gemini-1.5-flash")
-    resposta = model.generate_content(mensagem)
-    return resposta.text  # Retorna apenas o texto
+    try:
+        model = genai.GenerativeModel("gemini-1.5-flash")
+        resposta = model.generate_content(mensagem, timeout=10)  # Timeout para Gemini
+        return resposta.text
+    except Exception as e:
+        print(f"Erro na API Gemini: {e}")
+        return "Desculpe, houve um erro ao processar sua mensagem."
 
-# Função para dividir o texto em blocos menores
+# Dividir em blocos menores
 def dividir_em_blocos(texto, largura=1600):
     return textwrap.wrap(texto, width=largura)
 
-# Teste de servidor
-@app.route('/')
-def home():
-    return "Servidor Flask está funcionando!"
-
-# Endpoint para receber mensagens via Twilio
 @app.route('/mensagem', methods=['POST'])
 def mensagem():
     incoming_msg = request.values.get('Body', '').strip()
     resposta = MessagingResponse()
+    resposta.message("Recebemos sua mensagem! Processando...")  # Resposta inicial rápida
 
-    print(f"Mensagem recebida: {incoming_msg}")  # Log da mensagem recebida
-
-    # Gera resposta via Gemini AI
-    try:
-        gemini_resposta = enviar_mensagem_gemini(incoming_msg)
-        print(f"Resposta do Gemini: {gemini_resposta}")  # Log da resposta gerada
-
-        if gemini_resposta:  # Verifica se a resposta não está vazia
-            blocos = dividir_em_blocos(gemini_resposta)  # Divide a resposta em blocos
-            for bloco in blocos:
-                resposta.message(bloco)  # Enviar cada bloco como uma mensagem separada
-        else:
-            resposta.message("Desculpe, a resposta do Gemini está vazia.")
-    except Exception as e:
-        print(f"Erro ao chamar a API Gemini: {e}")
-        resposta.message("Desculpe, houve um erro ao processar sua mensagem.")
+    # Thread para processar a resposta do Gemini em segundo plano
+    threading.Thread(target=processar_resposta, args=(incoming_msg,)).start()
 
     return str(resposta)
 
+def processar_resposta(mensagem):
+    gemini_resposta = enviar_mensagem_gemini(mensagem)
+    if gemini_resposta:
+        blocos = dividir_em_blocos(gemini_resposta)
+        for bloco in blocos:
+            # Lógica para enviar cada bloco como uma nova mensagem pelo Twilio
+            enviar_mensagem_twilio(bloco)
+    else:
+        enviar_mensagem_twilio("Desculpe, a resposta do Gemini está vazia.")
+
+def enviar_mensagem_twilio(mensagem):
+    # Implementação para enviar mensagem de volta ao usuário via Twilio
+    print(f"Enviando resposta: {mensagem}")
+    # Aqui você pode usar o Twilio API Client para enviar mensagens adicionais, se necessário
+
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=5000, threaded=True)
