@@ -10,10 +10,11 @@ app = Flask(__name__)
 # Configuração da API Gemini
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
+# Função para chamar a API Gemini e gerar resposta
 def enviar_mensagem_gemini(mensagem):
     try:
         model = genai.GenerativeModel("gemini-1.5-flash")
-        resposta = model.generate_content(mensagem, timeout=10)  # Timeout para Gemini
+        resposta = model.generate_content(mensagem)
         return resposta.text
     except Exception as e:
         print(f"Erro na API Gemini: {e}")
@@ -39,15 +40,13 @@ def processar_resposta(mensagem):
     if gemini_resposta:
         blocos = dividir_em_blocos(gemini_resposta)
         for bloco in blocos:
-            # Lógica para enviar cada bloco como uma nova mensagem pelo Twilio
             enviar_mensagem_twilio(bloco)
     else:
         enviar_mensagem_twilio("Desculpe, a resposta do Gemini está vazia.")
 
 def enviar_mensagem_twilio(mensagem):
-    # Implementação para enviar mensagem de volta ao usuário via Twilio
     print(f"Enviando resposta: {mensagem}")
-    # Aqui você pode usar o Twilio API Client para enviar mensagens adicionais, se necessário
+    # Implemente aqui para enviar pelo Twilio, se necessário
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, threaded=True)
