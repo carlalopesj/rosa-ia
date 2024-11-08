@@ -37,7 +37,7 @@ def mensagem():
     # Resposta inicial rápida
 
     print(incoming_msg)
-    
+
     # Thread para processar a resposta do Gemini em segundo plano
     threading.Thread(target=processar_resposta, args=(incoming_msg,)).start()
 
@@ -45,6 +45,7 @@ def mensagem():
 
 def processar_resposta(mensagem):
     gemini_resposta = enviar_mensagem_gemini(mensagem)
+    print(gemini_resposta)
     if gemini_resposta:
         blocos = dividir_em_blocos(gemini_resposta)
         for bloco in blocos:
