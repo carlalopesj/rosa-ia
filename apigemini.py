@@ -24,6 +24,10 @@ def enviar_mensagem_gemini(mensagem):
 def dividir_em_blocos(texto, largura=1600):
     return textwrap.wrap(texto, width=largura)
 
+@app.route('/teste', methods=['GET'])
+def hello():
+    return "Hello, world!"
+
 @app.route('/mensagem', methods=['POST'])
 def mensagem():
     incoming_msg = request.values.get('Body', '').strip()
