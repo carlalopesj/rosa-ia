@@ -44,6 +44,7 @@ def mensagem():
     return str(resposta)
 
 def processar_resposta(mensagem):
+    print(mensagem)
     gemini_resposta = enviar_mensagem_gemini(mensagem)
     print(gemini_resposta)
     if gemini_resposta:
