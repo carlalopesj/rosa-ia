@@ -32,8 +32,12 @@ def hello():
 def mensagem():
     incoming_msg = request.values.get('Body', '').strip()
     resposta = MessagingResponse()
-    resposta.message("Recebemos sua mensagem! Processando...")  # Resposta inicial rápida
+    resposta.message("Recebemos sua mensagem! Processando...")  
+    
+    # Resposta inicial rápida
 
+    print(incoming_msg)
+    
     # Thread para processar a resposta do Gemini em segundo plano
     threading.Thread(target=processar_resposta, args=(incoming_msg,)).start()
 
