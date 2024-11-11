@@ -21,5 +21,5 @@ informações personalizadas.
    3.1 Para fazer qualquer uma dessas opções é só ir no botão verde escrito "code", caso queira clonar utilize o comando "git clone {link .git}" e se for realizar o download .zip, não se esqueça de extrair os arquivos
 5. Já no código, mude a linha 12, onde há api_key, e coloque a chave conseguida no passo 1
 6. Instale as bibliotecas com o comando pip install
-7. Instale também o ngrok para rodar o sistema e gerar um link. Este link será usado nas configurações no twilio, no campo de "Sandbox Settings"
+7. Instale também o ngrok para rodar o sistema e gerar um link. Este link será usado nas configurações no twilio, no campo de "Sandbox Settings", (lembre-se de adicionar o endpoint /mensagem ao final).
 8. Após ter tudo já configurado, use o comando flask --app apigemini.py run e teste mandar uma mensagem para o número do twilio
